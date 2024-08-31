@@ -1,0 +1,81 @@
+# .NET build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+*.nuspec
+*.nupkg
+*.nupkg.*
+*.snupkg.*
+*.nuspec.*
+*.dll
+*.pdb
+*.exe
+*.appx
+*.appxbundle
+*.appxupload
+*.xap
+*.xsf
+
+# OS generated files
+.DS_Store
+*.swp
+*.swo
+Thumbs.db
+ehthumbs.db
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.suo
+*.vscode/
+*.ncb
+*.suo
+*.orig
+*.log
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Azure Functions
+local.settings.json
+
+# JetBrains Rider
+.idea/
+
+# Test Results
+*.trx
+*.coverage
+*.coveragexml
+*.testresults
+*.nunit
+
+# Visual Studio for Mac
+.vscode/
+*.userprefs
+
+# WPF Designer
+*.wpf
+
+# Publishing
+publish/
+
+# ASP.NET Core
+*.launchSettings.json
+
+# StyleCop
+stylecop.json
