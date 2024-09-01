@@ -1,16 +1,20 @@
 ﻿using Gtk;
-using Amazon.S3;
+using DotNetEnv;
+using DropUp.UI;
 
 class Program
 {
     static void Main(string[] args)
     {
-        var s3Client = new AmazonS3Client();
-        var s3FileUploaderAdapter = new S3FileUploaderAdapter(s3Client, "your-bucket-name");
-        var fileUploaderService = new FileUploaderService(s3FileUploaderAdapter);
+        Env.Load();
+
+        var s3Config = new S3Config();
+        var s3Client = new S3Client(s3Config);
+        var fileUploaderRepository = new FileUploaderRepositoryImplementation(s3Client.s3Client, s3Config);
+        var uploadFileService = new UploadFileService(fileUploaderRepository);
 
         Application.Init();
-        var win = new MainWindow(fileUploaderService);
+        var win = new MainWindow(uploadFileService);
         Application.Run();
     }
 }
