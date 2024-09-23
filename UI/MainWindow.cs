@@ -6,6 +6,7 @@ namespace DropUp.UI
     {
         private readonly UploadFileService _uploadFileService;
 
+        [Obsolete]
         public MainWindow(UploadFileService uploadFileService) : base("DropUp")
         {
             _uploadFileService = uploadFileService;
@@ -21,6 +22,7 @@ namespace DropUp.UI
             ShowAll();
         }
 
+        [Obsolete]
         private void OnUploadButtonClicked(object? sender, EventArgs e)
         {
             using var fileChooser = new FileChooserDialog(
@@ -37,7 +39,8 @@ namespace DropUp.UI
             fileChooser.Destroy();
         }
 
-        private void UploadFile(string filePath)
+        [Obsolete]
+        private async void UploadFile(string filePath)
         {
             Console.WriteLine(filePath);
 
@@ -51,7 +54,9 @@ namespace DropUp.UI
             {
                 using var fileStream = File.OpenRead(filePath);
                 string fileName = System.IO.Path.GetFileName(filePath);
-                _uploadFileService.Execute(fileName);
+
+                Clipboard clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+                clipboard.SetText(await _uploadFileService.Execute(filePath));
             }
             catch (Exception ex)
             {
