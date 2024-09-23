@@ -4,9 +4,9 @@ public class UploadFileService(IFileUploaderRepository fileUploaderRepository)
 {
     private readonly IFileUploaderRepository _fileUploaderRepository = fileUploaderRepository;
 
-    public async void Execute(string filename)
+    public async Task<string> Execute(string filePath)
     {
-        Console.WriteLine($"Uploading {filename}...");
-        await _fileUploaderRepository.UploadFile(filename);
+        Console.WriteLine($"Uploading {filePath}...");
+        return await _fileUploaderRepository.UploadFile(filePath);
     }
 }
