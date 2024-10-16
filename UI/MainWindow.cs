@@ -1,12 +1,17 @@
 using Gtk;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace DropUp.UI
 {
     public class MainWindow : Window
     {
         private readonly UploadFileService _uploadFileService;
+        private readonly Button _uploadButton;
+        private readonly Label _statusLabel;
+        private readonly Label _title;
 
-        [Obsolete]
         public MainWindow(UploadFileService uploadFileService) : base("DropUp")
         {
             _uploadFileService = uploadFileService;
@@ -14,54 +19,78 @@ namespace DropUp.UI
             SetDefaultSize(400, 200);
             DeleteEvent += (o, e) => Application.Quit();
 
-            var button = new Button("Upload File");
+            _uploadButton = new Button("Upload File");
+            _uploadButton.Clicked += async (sender, e) => await OnUploadButtonClicked();
 
-            button.Clicked += OnUploadButtonClicked;
+            _statusLabel = new Label("Selected File to Upload");
+            _title = new Label("Welcome to DropUp!");
 
-            Add(button);
+            var vbox = new VBox(false, 20);
+            vbox.PackStart(_title, false, false, 0);
+            vbox.PackStart(_uploadButton, false, false, 20);
+            vbox.PackStart(_statusLabel, false, false, 0);
+
+            Add(vbox);
             ShowAll();
         }
 
-        [Obsolete]
-        private void OnUploadButtonClicked(object? sender, EventArgs e)
+        private async Task OnUploadButtonClicked()
         {
             using var fileChooser = new FileChooserDialog(
-                 "Select a file",
-                 this,
-                 FileChooserAction.Open,
-                 "Cancel", ResponseType.Cancel,
-                 "Open", ResponseType.Accept);
+                "Select a file",
+                this,
+                FileChooserAction.Open,
+                "Cancel", ResponseType.Cancel,
+                "Open", ResponseType.Accept);
+
             if (fileChooser.Run() == (int)ResponseType.Accept)
             {
                 string filePath = fileChooser.Filename;
-                UploadFile(filePath);
+                fileChooser.Destroy();
+
+                await UploadFile(filePath);
             }
-            fileChooser.Destroy();
+            else
+            {
+                fileChooser.Destroy();
+                UpdateStatus("No file found", isError: true);
+            }
         }
 
-        [Obsolete]
-        private async void UploadFile(string filePath)
+        private async Task UploadFile(string filePath)
         {
-            Console.WriteLine(filePath);
-
             if (!File.Exists(filePath))
             {
-                Console.WriteLine($"File not found: {filePath}");
+                UpdateStatus($"No file found: {filePath}", isError: true);
                 return;
             }
 
             try
             {
-                using var fileStream = File.OpenRead(filePath);
-                string fileName = System.IO.Path.GetFileName(filePath);
+                _uploadButton.Sensitive = false;
+                UpdateStatus("Uploading...");
 
-                Clipboard clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
-                clipboard.SetText(await _uploadFileService.Execute(filePath));
+                string downloadLink = await _uploadFileService.Execute(filePath);
+
+                var clipboard = Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
+                clipboard.Text = downloadLink;
+
+                UpdateStatus("Uploaded successfully! The link is available at your clipboard.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                UpdateStatus($"Error: {ex.Message}", isError: true);
             }
+            finally
+            {
+                _uploadButton.Sensitive = true;
+            }
+        }
+
+        private void UpdateStatus(string message, bool isError = false)
+        {
+            _statusLabel.Text = message;
+            _statusLabel.ModifyFg(StateType.Normal, isError ? new Gdk.Color(255, 0, 0) : new Gdk.Color(255, 255, 255));
         }
     }
 }
